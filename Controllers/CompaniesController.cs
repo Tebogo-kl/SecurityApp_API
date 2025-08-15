@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Secu.DataTransferObjects;
+using Secu.Services.Interfaces;
 
 namespace Secu.Controllers
 {

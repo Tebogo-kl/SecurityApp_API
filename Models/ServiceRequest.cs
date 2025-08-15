@@ -50,8 +50,8 @@ namespace SecurityService.API.Models
         [ForeignKey("OfficerId")]
         public virtual SecurityOfficer? AssignedOfficer { get; set; }
 
-        //public virtual ICollection<RequestResponse> Responses { get; set; } = new List<RequestResponse>();
-        //public virtual Review? Review { get; set; }
+        public virtual ICollection<RequestResponse> Responses { get; set; } = new List<RequestResponse>();
+        public virtual Review? Review { get; set; }
     }
 }
 

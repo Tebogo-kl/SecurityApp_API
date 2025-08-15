@@ -29,13 +29,17 @@ namespace SecurityService.API.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+
+        // Navigation properties
+
+        public virtual ICollection<Company> OwnedCompanies { get; set; } = new List<Company>();
+        public virtual SecurityOfficer? SecurityOfficer { get; set; }
+        public virtual ICollection<ServiceRequest> ServiceRequests { get; set; } = new List<ServiceRequest>();
+        public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
+
 }
 
-// Navigation properties
-//    public virtual ICollection<Company> OwnedCompanies { get; set; } = new List<Company>();
-//    public virtual SecurityOfficer? SecurityOfficer { get; set; }
-//    public virtual ICollection<ServiceRequest> ServiceRequests { get; set; } = new List<ServiceRequest>();
-//    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
-//}
+
+
 

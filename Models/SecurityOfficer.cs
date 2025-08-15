@@ -50,9 +50,9 @@ namespace SecurityService.API.Models
         [ForeignKey("CompanyId")]
         public virtual Company Company { get; set; } = null!;
 
-        //public virtual ICollection<ServiceRequest> AssignedRequests { get; set; } = new List<ServiceRequest>();
-        //public virtual ICollection<RequestResponse> Responses { get; set; } = new List<RequestResponse>();
-        //public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public virtual ICollection<ServiceRequest> AssignedRequests { get; set; } = new List<ServiceRequest>();
+        public virtual ICollection<RequestResponse> Responses { get; set; } = new List<RequestResponse>();
+        public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }
 

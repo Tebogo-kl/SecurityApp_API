@@ -1,6 +1,8 @@
 using Secu.Data;
 using Secu.Services.Implementations;
 using Secu.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 

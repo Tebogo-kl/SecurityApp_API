@@ -1,4 +1,6 @@
-﻿namespace Secu.DataTransferObjects
+﻿using SecurityService.API.Models;
+
+namespace Secu.DataTransferObjects
 {
     public class CreateServiceRequestDto
     {

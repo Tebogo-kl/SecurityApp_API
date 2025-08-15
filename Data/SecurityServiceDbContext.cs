@@ -2,6 +2,8 @@
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using SecurityService.API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Secu.Data
 {

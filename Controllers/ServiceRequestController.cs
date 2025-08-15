@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Secu.DataTransferObjects;
+using Secu.Services.Interfaces;
+using SecurityService.API.Models;
 
 namespace Secu.Controllers
 {
@@ -9,7 +12,7 @@ namespace Secu.Controllers
     {
         private readonly IServiceRequestService _serviceRequestService;
 
-        public ServiceRequestsController(IServiceRequestService serviceRequestService)
+        public ServiceRequestController(IServiceRequestService serviceRequestService)
         {
             _serviceRequestService = serviceRequestService;
         }
