@@ -172,7 +172,7 @@ namespace Secu.Services.Implementations
                 .Include(o => o.User)
                 .FirstOrDefaultAsync(o => o.Id == officerId);
 
-            if (officer == null) throw new Key NotFoundException("Officer not found");
+            if (officer == null) throw new KeyNotFoundException("Officer not found");
 
             officer.PsiraNumber = dto.PsiraNumber;
             officer.IsPsiraVerified = dto.IsPsiraVerified;
