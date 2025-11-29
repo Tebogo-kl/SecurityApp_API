@@ -34,6 +34,7 @@ public class CompanyService : ICompanyService
         return new CompanyDto
         {
             Id = company.Id,
+            OwnerId = company.OwnerId,
             CompanyName = company.CompanyName,
             Email = company.Email,
             Phone = company.Phone
@@ -43,9 +44,13 @@ public class CompanyService : ICompanyService
     public async Task<CompanyDto?> GetByIdAsync(Guid id)
     {
         var company = await _context.Companies.FindAsync(id);
-        return company == null ? null : new CompanyDto
+
+        if (company == null) return null;
+
+        return new CompanyDto
         {
             Id = company.Id,
+            OwnerId = company.OwnerId,
             CompanyName = company.CompanyName,
             Email = company.Email,
             Phone = company.Phone
@@ -54,15 +59,44 @@ public class CompanyService : ICompanyService
 
     public async Task<IEnumerable<CompanyDto>> GetAllAsync()
     {
-        return await _context.Companies
-            .Select(c => new CompanyDto
-            {
-                Id = c.Id,
-                CompanyName = c.CompanyName,
-                Email = c.Email,
-                Phone = c.Phone
-            })
-            .ToListAsync();
+        var companies = await _context.Companies.ToListAsync();
+
+        return companies.Select(c => new CompanyDto
+        {
+            Id = c.Id,
+            OwnerId = c.OwnerId,
+            CompanyName = c.CompanyName,
+            Email = c.Email, 
+            Phone = c.Phone
+        });
+    }
+
+
+    public async Task<CompanyDto> UpdatePsiraVerificationAsync(Guid companyId, UpdateCompanyPsiraDto dto)
+    {
+        var company = await _context.Companies.FindAsync(companyId);
+        if (company == null) throw new KeyNotFoundException("Company not found");
+
+        company.PsiraNumber = dto.PsiraNumber;
+        company.IsPsiraVerified = dto.IsPsiraVerified;
+        company.PsiraStatus = dto.PsiraStatus;
+        company.PsiraCertificateExpiry = dto.PsiraCertificateExpiry;
+        company.PsiraVerifiedAt = DateTime.UtcNow;
+        company.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return new CompanyDto
+        {
+            Id = company.Id,
+            OwnerId = company.OwnerId,
+            CompanyName = company.CompanyName,
+            Email = company.Email,
+            Phone = company.Phone,
+            PsiraNumber = company.PsiraNumber,
+            IsPsiraVerified = company.IsPsiraVerified,
+            PsiraStatus = company.PsiraStatus,
+            PsiraCertificateExpiry = company.PsiraCertificateExpiry
+        };
     }
 }
-    

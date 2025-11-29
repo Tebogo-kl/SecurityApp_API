@@ -5,6 +5,9 @@ namespace Secu.Services.Interfaces
     public interface IProfileService
     {
         Task<ProfileDto> CreateAsync(CreateProfileDto dto, Guid userId);
-        Task<ProfileDto?> GetByIdAsync(Guid id);
+        Task<ProfileDto> CreateAsync(CreateProfileDto dto);
+        Task<ProfileDto?> GetByIdAsync(Guid userId);
+        Task<LoginResponseDto?> LoginAsync(LoginDto dto);
+        Task<LoginResponseDto?> OfficerLoginAsync(OfficerLoginDto dto);
     }
 }

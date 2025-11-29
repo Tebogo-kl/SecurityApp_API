@@ -60,6 +60,9 @@ namespace Secu.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<bool>("IsPsiraVerified")
+                        .HasColumnType("bit");
+
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uniqueidentifier");
 
@@ -67,6 +70,20 @@ namespace Secu.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("PsiraCertificateExpiry")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PsiraNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PsiraStatus")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("PsiraVerifiedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("RegistrationNumber")
                         .IsRequired()
@@ -100,6 +117,11 @@ namespace Secu.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -109,6 +131,10 @@ namespace Secu.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -224,10 +250,28 @@ namespace Secu.Migrations
                     b.Property<decimal>("HourlyRate")
                         .HasColumnType("decimal(10,2)");
 
+                    b.Property<bool>("IsPsiraVerified")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("PsiraCertificateExpiry")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PsiraNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PsiraStatus")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("PsiraVerifiedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<decimal>("Rating")
                         .HasColumnType("decimal(3,2)");
 
                     b.Property<string>("Specializations")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 

@@ -9,6 +9,10 @@ namespace SecurityService.API.Models
 
         [Required]
         [StringLength(50)]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(50)]
         public string FirstName { get; set; } = string.Empty;
 
         [Required]
@@ -22,6 +26,9 @@ namespace SecurityService.API.Models
         [Required]
         [StringLength(500)]
         public string Address { get; set; } = string.Empty;
+
+        [Required]
+        public string PasswordHash { get; set; } = string.Empty;
 
         [Required]
         public UserRole Role { get; set; }

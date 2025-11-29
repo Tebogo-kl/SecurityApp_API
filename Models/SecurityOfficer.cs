@@ -38,7 +38,18 @@ namespace SecurityService.API.Models
         public decimal? CurrentLongitude { get; set; }
 
         [StringLength(500)]
-        public string? Specializations { get; set; } // JSON or comma-separated
+        public List<string> Specializations { get; set; } = new();// JSON or comma-separated
+        [StringLength(50)]
+        public string? PsiraNumber { get; set; }
+
+        public bool IsPsiraVerified { get; set; } = false;
+
+        [StringLength(50)]
+        public string? PsiraStatus { get; set; } // Registered, Withdrawn, Active, Pending renewal
+
+        public DateTime? PsiraCertificateExpiry { get; set; }
+
+        public DateTime? PsiraVerifiedAt { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
@@ -49,10 +60,12 @@ namespace SecurityService.API.Models
 
         [ForeignKey("CompanyId")]
         public virtual Company Company { get; set; } = null!;
+        //public virtual Profile User { get; set; }
 
         public virtual ICollection<ServiceRequest> AssignedRequests { get; set; } = new List<ServiceRequest>();
         public virtual ICollection<RequestResponse> Responses { get; set; } = new List<RequestResponse>();
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+       
     }
 }
 

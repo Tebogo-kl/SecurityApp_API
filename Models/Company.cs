@@ -42,6 +42,17 @@ namespace SecurityService.API.Models
 
         [StringLength(1000)]
         public string? Description { get; set; }
+        [StringLength(50)]
+        public string? PsiraNumber { get; set; }
+
+        public bool IsPsiraVerified { get; set; } = false;
+
+        [StringLength(50)]
+        public string? PsiraStatus { get; set; } // Registered, Withdrawn, Active, etc.
+
+        public DateTime? PsiraCertificateExpiry { get; set; }
+
+        public DateTime? PsiraVerifiedAt { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

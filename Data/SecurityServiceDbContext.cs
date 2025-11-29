@@ -147,6 +147,13 @@ namespace Secu.Data
             // Index for fast filtering by officer availability (Available, Busy, Offline)
             modelBuilder.Entity<SecurityOfficer>()
                 .HasIndex(so => so.Status);
+
+            modelBuilder.Entity<SecurityOfficer>()
+                .Property(e => e.Specializations)
+                .HasConversion(
+                  v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions)null),
+                v => System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions)null) ?? new List<string>()
+            );
         }
     }
 
