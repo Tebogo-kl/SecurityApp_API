@@ -47,8 +47,8 @@ namespace Secu.Services.Implementations
                 UserId = profile.Id,
                 CompanyId = dto.CompanyId,
                 BadgeNumber = dto.BadgeNumber,
-                Status = statusEnum,  // Use the enum
-                Specializations = dto.Specializations,
+                Status = statusEnum,
+                Specializations = dto.Specializations ?? new List<string>(),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -56,87 +56,70 @@ namespace Secu.Services.Implementations
             _context.SecurityOfficers.Add(officer);
             await _context.SaveChangesAsync();
 
-            return new SecurityOfficerDto
-            {
-                Id = officer.Id,
-                CompanyId = officer.CompanyId,
-                BadgeNumber = officer.BadgeNumber,
-                FirstName = profile.FirstName,
-                LastName = profile.LastName,
-                Phone = profile.Phone,
-                Email = profile.Email,
-                Status = officer.Status.ToString(),  // Convert enum to string
-                Specializations = officer.Specializations,
-                CreatedAt = officer.CreatedAt
-            };
+            return MapToDto(officer, profile, null);
         }
 
         public async Task<SecurityOfficerDto?> GetByIdAsync(Guid id)
         {
             var officer = await _context.SecurityOfficers
                 .Include(o => o.User)
+                .Include(o => o.Company)
                 .FirstOrDefaultAsync(o => o.Id == id);
 
             if (officer == null) return null;
 
-            return new SecurityOfficerDto
-            {
-                Id = officer.Id,
-                CompanyId = officer.CompanyId,
-                BadgeNumber = officer.BadgeNumber,
-                FirstName = officer.User?.FirstName ?? "",
-                LastName = officer.User?.LastName ?? "",
-                Phone = officer.User?.Phone ?? "",
-                Email = officer.User?.Email ?? "",
-                Status = officer.Status.ToString(),  // Convert enum to string
-                Specializations = officer.Specializations,
-                CreatedAt = officer.CreatedAt
-            };
+            return MapToDto(officer, officer.User, officer.Company);
         }
-
 
         public async Task<SecurityOfficerDto?> GetByUserIdAsync(Guid userId)
         {
             var officer = await _context.SecurityOfficers
                 .Include(o => o.User)
+                .Include(o => o.Company)
                 .FirstOrDefaultAsync(o => o.UserId == userId);
 
             if (officer == null) return null;
 
-            return new SecurityOfficerDto
-            {
-                Id = officer.Id,
-                CompanyId = officer.CompanyId,
-                BadgeNumber = officer.BadgeNumber,
-                FirstName = officer.User?.FirstName ?? "",
-                LastName = officer.User?.LastName ?? "",
-                Phone = officer.User?.Phone ?? "",
-                Email = officer.User?.Email ?? "",
-                Status = officer.Status.ToString(),
-                Specializations = officer.Specializations,
-                CreatedAt = officer.CreatedAt
-            };
+            return MapToDto(officer, officer.User, officer.Company);
         }
+
         public async Task<IEnumerable<SecurityOfficerDto>> GetByCompanyIdAsync(Guid companyId)
         {
             var officers = await _context.SecurityOfficers
                 .Include(o => o.User)
+                .Include(o => o.Company)
                 .Where(o => o.CompanyId == companyId)
                 .ToListAsync();
 
-            return officers.Select(officer => new SecurityOfficerDto
-            {
-                Id = officer.Id,
-                CompanyId = officer.CompanyId,
-                BadgeNumber = officer.BadgeNumber,
-                FirstName = officer.User?.FirstName ?? "",
-                LastName = officer.User?.LastName ?? "",
-                Phone = officer.User?.Phone ?? "",
-                Email = officer.User?.Email ?? "",
-                Status = officer.Status.ToString(),  // Convert enum to string
-                Specializations = officer.Specializations,
-                CreatedAt = officer.CreatedAt
-            });
+            return officers.Select(o => MapToDto(o, o.User, o.Company));
+        }
+
+        /// <summary>
+        /// Get all security officers
+        /// </summary>
+        public async Task<IEnumerable<SecurityOfficerDto>> GetAllAsync()
+        {
+            var officers = await _context.SecurityOfficers
+                .Include(o => o.User)
+                .Include(o => o.Company)
+                .ToListAsync();
+
+            return officers.Select(o => MapToDto(o, o.User, o.Company));
+        }
+
+        /// <summary>
+        /// Get all available security officers (Status = Available)
+        /// This is used by users to see officers on the map
+        /// </summary>
+        public async Task<IEnumerable<SecurityOfficerDto>> GetAvailableAsync()
+        {
+            var officers = await _context.SecurityOfficers
+                .Include(o => o.User)
+                .Include(o => o.Company)
+                .Where(o => o.Status == OfficerStatus.Available)
+                .ToListAsync();
+
+            return officers.Select(o => MapToDto(o, o.User, o.Company));  
         }
 
         public async Task<bool> DeleteAsync(Guid id)
@@ -166,10 +149,26 @@ namespace Secu.Services.Implementations
             return false;
         }
 
+        /// <summary>
+        /// Update officer's current GPS location
+        /// </summary>
+        public async Task<bool> UpdateLocationAsync(Guid id, decimal latitude, decimal longitude)
+        {
+            var officer = await _context.SecurityOfficers.FindAsync(id);
+            if (officer == null) return false;
+
+            officer.CurrentLatitude = latitude;
+            officer.CurrentLongitude = longitude;
+            officer.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<SecurityOfficerDto> UpdatePsiraVerificationAsync(Guid officerId, UpdateOfficerPsiraDto dto)
         {
             var officer = await _context.SecurityOfficers
                 .Include(o => o.User)
+                .Include(o => o.Company)
                 .FirstOrDefaultAsync(o => o.Id == officerId);
 
             if (officer == null) throw new KeyNotFoundException("Officer not found");
@@ -183,22 +182,39 @@ namespace Secu.Services.Implementations
 
             await _context.SaveChangesAsync();
 
+            return MapToDto(officer, officer.User, officer.Company);
+        }
+
+        /// <summary>
+        /// Helper method to map SecurityOfficer entity to DTO
+        /// </summary>
+        private static SecurityOfficerDto MapToDto(SecurityOfficer officer, Profile? user, Company? company)
+        {
             return new SecurityOfficerDto
             {
                 Id = officer.Id,
+                UserId = officer.UserId,
                 CompanyId = officer.CompanyId,
                 BadgeNumber = officer.BadgeNumber,
-                FirstName = officer.User?.FirstName ?? "",
-                LastName = officer.User?.LastName ?? "",
-                Phone = officer.User?.Phone ?? "",
-                Email = officer.User?.Email ?? "",
+                FirstName = user?.FirstName ?? "",
+                LastName = user?.LastName ?? "",
+                Phone = user?.Phone ?? "",
+                Email = user?.Email ?? "",
                 Status = officer.Status.ToString(),
                 Specializations = officer.Specializations,
                 PsiraNumber = officer.PsiraNumber,
                 IsPsiraVerified = officer.IsPsiraVerified,
                 PsiraStatus = officer.PsiraStatus,
                 PsiraCertificateExpiry = officer.PsiraCertificateExpiry,
-                CreatedAt = officer.CreatedAt
+                CreatedAt = officer.CreatedAt,
+                // Location data for map display
+                CurrentLatitude = officer.CurrentLatitude,
+                CurrentLongitude = officer.CurrentLongitude,
+                // Stats
+                Rating = officer.Rating,
+                TotalJobs = officer.TotalJobs,
+                // Company name for display
+                CompanyName = company?.CompanyName ?? ""
             };
         }
     }

@@ -10,5 +10,6 @@ namespace Secu.DataTransferObjects
         public string LocationAddress { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public int EstimatedDuration { get; set; }
+        public Guid? PreferredOfficerId { get; set; } // Optional: user can request specific officer
     }
 }

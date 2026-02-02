@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Secu.Data;
 using Secu.DataTransferObjects;
-using Secu.Services.Interfaces; 
+using Secu.Services.Interfaces;
 using SecurityService.API.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -22,7 +22,6 @@ namespace Secu.Services.Implementations
             _configuration = configuration;
         }
 
-
         public async Task<ProfileDto> CreateAsync(CreateProfileDto dto)
         {
             return await CreateAsync(dto, Guid.NewGuid());
@@ -30,8 +29,6 @@ namespace Secu.Services.Implementations
 
         public async Task<ProfileDto> CreateAsync(CreateProfileDto dto, Guid userId)
         {
-
-
             var existing = await _context.Profiles
                .FirstOrDefaultAsync(p => p.Email.ToLower() == dto.Email.ToLower());
 
@@ -40,12 +37,11 @@ namespace Secu.Services.Implementations
                 throw new InvalidOperationException("Email already exists");
             }
 
-
             var profile = new Profile
-            {  
+            {
                 Id = userId,
                 Email = dto.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password), // Hash password
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Phone = dto.Phone,
@@ -73,7 +69,7 @@ namespace Secu.Services.Implementations
             return profile == null ? null : new ProfileDto
             {
                 Id = profile.Id,
-                Email = profile.Email,      
+                Email = profile.Email,
                 FirstName = profile.FirstName,
                 LastName = profile.LastName,
                 Phone = profile.Phone,
@@ -81,9 +77,36 @@ namespace Secu.Services.Implementations
             };
         }
 
+        public async Task<SecurityOfficerDto?> GetByUserIdAsync(Guid userId)
+        {
+            var officer = await _context.SecurityOfficers
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(o => o.UserId == userId);
+
+            if (officer == null) return null;
+
+            return new SecurityOfficerDto
+            {
+                Id = officer.Id,
+                UserId = officer.UserId,
+                CompanyId = officer.CompanyId,
+                BadgeNumber = officer.BadgeNumber,
+                FirstName = officer.User?.FirstName ?? "",
+                LastName = officer.User?.LastName ?? "",
+                Phone = officer.User?.Phone ?? "",
+                Email = officer.User?.Email ?? "",
+                Status = officer.Status.ToString(),
+                Specializations = officer.Specializations,
+                PsiraNumber = officer.PsiraNumber,
+                IsPsiraVerified = officer.IsPsiraVerified,
+                PsiraStatus = officer.PsiraStatus,
+                PsiraCertificateExpiry = officer.PsiraCertificateExpiry,
+                CreatedAt = officer.CreatedAt
+            };
+        }
+
         public async Task<LoginResponseDto?> LoginAsync(LoginDto dto)
         {
-            // Find user by email
             var profile = await _context.Profiles
                 .FirstOrDefaultAsync(p => p.Email.ToLower() == dto.Email.ToLower());
 
@@ -92,13 +115,11 @@ namespace Secu.Services.Implementations
                 return null;
             }
 
-            // Verify password
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, profile.PasswordHash))
             {
                 return null;
             }
 
-            // Generate JWT token
             var token = GenerateJwtToken(profile);
 
             return new LoginResponseDto
@@ -116,7 +137,6 @@ namespace Secu.Services.Implementations
                 ExpiresIn = 3600
             };
         }
-
 
         private string GenerateJwtToken(Profile profile)
         {
@@ -147,7 +167,6 @@ namespace Secu.Services.Implementations
         {
             try
             {
-                // Find security officer by badge number
                 var officer = await _context.SecurityOfficers
                     .Include(o => o.User)
                     .FirstOrDefaultAsync(o => o.BadgeNumber == dto.BadgeNumber);
@@ -157,17 +176,14 @@ namespace Secu.Services.Implementations
                     return null;
                 }
 
-                // Check if the full name matches
                 var fullName = $"{officer.User.FirstName} {officer.User.LastName}".Trim().ToLower();
                 var providedName = dto.FullName.Trim().ToLower();
 
-                // Allow partial match (first name only or full name)
                 if (!fullName.Contains(providedName) && !providedName.Contains(officer.User.FirstName.ToLower()))
                 {
                     return null;
                 }
 
-                // Generate JWT token
                 var token = GenerateJwtToken(officer.User);
 
                 return new LoginResponseDto
